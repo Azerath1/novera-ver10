@@ -18,6 +18,7 @@ class ChapterListResponse(ChapterBase):
 class ChapterResponse(ChapterListResponse):
     """Full chapter with content."""
     content: str
+    title_id: int
 
 class TitleBase(BaseModel):
     name: str

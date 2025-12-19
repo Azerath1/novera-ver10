@@ -34,17 +34,20 @@ def create_novel(title: TitleCreate, db: Session = Depends(get_db)):
     db.refresh(new_title)
     return new_title
 
-@app.get("/titles/", response_model=List[TitleResponse])
+# 1. Убери слэш после titles
+@app.get("/titles", response_model=List[TitleResponse])
 def get_all_novels(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Get all novels with chapters (without content)."""
     return db.query(Title).options(joinedload(Title.chapters)).offset(skip).limit(limit).all()
 
+# 2. Здесь тоже проверь, чтобы не было лишних знаков
 @app.get("/titles/{title_id}", response_model=TitleResponse)
 def get_novel_by_id(title_id: int, db: Session = Depends(get_db)):
-    """Get novel details with chapters (without content)."""
+    # Добавь этот принт, чтобы увидеть в консоли, доходит ли запрос
+    print(f"--- ЗАПРОС НА ID: {title_id} ---")
+    
     novel = db.query(Title).options(joinedload(Title.chapters)).filter(Title.id == title_id).first()
     if not novel:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Novel with ID {title_id} not found")
+        raise HTTPException(status_code=404, detail="Not Found")
     return novel
 
 @app.post("/titles/{title_id}/chapters/", response_model=ChapterResponse)
